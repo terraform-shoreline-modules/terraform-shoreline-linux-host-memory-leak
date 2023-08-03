@@ -1,0 +1,110 @@
+{
+  "name": "host_memory_leak_incident",
+  "description": "A memory leak occurs when a program allocates memory but fails to release it when it is no longer needed, leading to a gradual increase in memory usage over time. This can eventually cause the program or system to become unstable or crash due to insufficient available memory.",
+  "params": [
+    {
+      "name": "PID",
+      "value": ""
+    },
+    {
+      "name": "PROCESS_NAME",
+      "value": ""
+    },
+    {
+      "name": "MEMORY_THRESHOLD",
+      "value": ""
+    },
+    {
+      "name": "MEMORY_USED",
+      "value": ""
+    },
+    {
+      "name": "N",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_LOG_FILE",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Host Memory Leak Incident\nA memory leak occurs when a program allocates memory but fails to release it when it is no longer needed, leading to a gradual increase in memory usage over time. This can eventually cause the program or system to become unstable or crash due to insufficient available memory."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Get top processes by memory usage"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `ps aux --sort=-%mem | head -n ${N}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check memory usage of a specific process"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `pmap ${PID}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check available memory and swap usage"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `free -h`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check system logs for out of memory errors"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `grep -i \"out of memory\" /var/log/syslog`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Memory leaks in the software running on the host machine."
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_process_memory_check($PROCESS_NAME, $MEMORY_THRESHOLD, $MEMORY_USED, $PATH_TO_LOG_FILE)"
+    }
+  ]
+}
